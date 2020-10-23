@@ -135,11 +135,11 @@ function colony = processOneColonyImage(filename, dataDir, varargin)
     rectangle('Position',rec,'LineWidth',2,'EdgeColor','b')
     saveas(gcf, fullfile(previewDir,['col_id' num2str(colID) '_mask.tif']));
     
-    disp('save preview');
-    preview = double(colimg(:,:,setdiff(1:meta.nChannels,DAPIChannel)));
-    for i = 1:size(preview,3)
-        preview(:,:,i) = imadjust(mat2gray(preview(:,:,i)));
-    end
+%     disp('save preview');
+%     preview = double(colimg(:,:,setdiff(1:meta.nChannels,DAPIChannel)));
+%     for i = 1:size(preview,3)
+%         preview(:,:,i) = imadjust(mat2gray(preview(:,:,i)));
+%     end
     %imwrite(preview, fullfile(previewDir,['col_id' num2str(colID) '_' type '_preview.tif']));
     
 %     % write DAPI z-stack separately for Ilastik    
