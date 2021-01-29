@@ -113,7 +113,7 @@ function colony = processOneColonyImage(filename, dataDir, varargin)
     if(prenormImage)
         dapi = colimg(:,:,DAPIChannel);
         for ii = 1:size(colimg,3)
-            colimg(:,:,ii) = normalizeImageToDAPI(colimg(:,:,ii),dapi,2*clparameters.sopen);
+            colimg(:,:,ii) = normalizeImageToDAPI(colimg(:,:,ii),dapi,3*clparameters.sopen);
         end
     end
     
