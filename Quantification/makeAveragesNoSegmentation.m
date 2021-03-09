@@ -26,12 +26,12 @@ nucAvgAll = mean(cat(3,colCat.NucAvg),3);
 nucStdAll = std(cat(3,colCat.NucAvg),[],3)/sqrt(ncol);
 
 if ~isempty(DAPIChannel)
-    nucAvgAllDAPINormalized = bsxfun(@rdivide, nucAvgAll, nucAvgAll(:,DAPIChannel));
+    nucAvgAllDAPINormalized = nucAvgAll./ nucAvgAll(:,DAPIChannel);
 
     % make a version scaled from 0 to 1
     norm = max(nucAvgAllDAPINormalized) - min(nucAvgAllDAPINormalized);
-    nucAvgDoubleNormalized = bsxfun(@minus, nucAvgAllDAPINormalized, min(nucAvgAllDAPINormalized));
-    nucAvgDoubleNormalized = bsxfun(@rdivide, nucAvgDoubleNormalized', norm')';
+    nucAvgDoubleNormalized = nucAvgAllDAPINormalized./min(nucAvgAllDAPINormalized);
+    nucAvgDoubleNormalized =nucAvgDoubleNormalized'./norm;
 else
     nucAvgAllDAPINormalized = [];
     nucAvgDoubleNormalized = [];
@@ -41,6 +41,6 @@ output = struct('nucAvg', nucAvgAll,...
                 'nucAvgDAPINormalized', nucAvgAllDAPINormalized,...
                 'nucAvgDAPImaxNormalized', nucAvgDoubleNormalized,...
                 'r',r,...
-                'colSize',colSize,'nucStd',nucStdAll);
-            
-
+                'colSize',colSize,...
+                'nucStd',nucStdAll);
+           
