@@ -18,7 +18,7 @@ function metadata = createMinimalOMEXMLMetadata(I, varargin)
 
 % OME Bio-Formats package for reading and converting biological file formats.
 %
-% Copyright (C) 2012 - 2017 Open Microscopy Environment:
+% Copyright (C) 2012 - 2016 Open Microscopy Environment:
 %   - Board of Regents of the University of Wisconsin-Madison
 %   - Glencoe Software, Inc.
 %   - University of Dundee
@@ -53,7 +53,12 @@ metadata = OMEXMLService.createOMEXMLMetadata();
 metadata.createRoot();
 metadata.setImageID('Image:0', 0);
 metadata.setPixelsID('Pixels:0', 0);
-metadata.setPixelsBigEndian(javaObject('java.lang.Boolean', 'TRUE'), 0);
+if is_octave()
+    java_true = java_get('java.lang.Boolean', 'TRUE');
+else
+    java_true = java.lang.Boolean.TRUE;
+end
+metadata.setPixelsBigEndian(java_true, 0);
 
 % Set dimension order
 dimensionOrderEnumHandler = javaObject('ome.xml.model.enums.handlers.DimensionOrderEnumHandler');

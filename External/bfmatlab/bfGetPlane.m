@@ -22,7 +22,7 @@ function I = bfGetPlane(r, varargin)
 
 % OME Bio-Formats package for reading and converting biological file formats.
 %
-% Copyright (C) 2012 - 2017 Open Microscopy Environment:
+% Copyright (C) 2012 - 2016 Open Microscopy Environment:
 %   - Board of Regents of the University of Wisconsin-Madison
 %   - Glencoe Software, Inc.
 %   - University of Dundee
@@ -79,13 +79,22 @@ plane = r.openBytes(...
     ip.Results.iPlane - 1, ip.Results.x - 1, ip.Results.y - 1, ...
     ip.Results.width, ip.Results.height);
 
-% Convert byte array to MATLAB image
-I = javaMethod('makeDataArray2D', 'loci.common.DataTools', plane, ...
-    bpp, fp, little, ip.Results.height);
+% convert byte array to MATLAB image
+if sgn
+    % can get the data directly to a matrix
+    I = javaMethod('makeDataArray2D', 'loci.common.DataTools', plane, ...
+        bpp, fp, little, ip.Results.height);
+else
+    % get the data as a vector, either because makeDataArray2D
+    % is not available, or we need a vector for typecast
+    I = javaMethod('makeDataArray', 'loci.common.DataTools', plane, ...
+        bpp, fp, little);
+end
+
+% Java does not have explicitly unsigned data types;
+% hence, we must inform MATLAB when the data is unsigned
 if ~sgn
-    % Java does not have explicitly unsigned data types;
-    % hence, we must inform MATLAB when the data is unsigned
-    I = I(:);        % Need vector for typecast
+    % NB: arr will always be a vector here
     switch class(I)
         case 'int8'
             I = typecast(I, 'uint8');
@@ -96,5 +105,10 @@ if ~sgn
         case 'int64'
             I = typecast(I, 'uint64');
     end
-    I = reshape(I, [ip.Results.height ip.Results.width]); % Convert back to matrix
+end
+
+if isvector(I)
+    % convert results from vector to matrix
+    shape = [ip.Results.width ip.Results.height];
+    I = reshape(I, shape)';
 end
