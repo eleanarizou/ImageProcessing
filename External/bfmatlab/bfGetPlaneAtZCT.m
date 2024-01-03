@@ -1,18 +1,21 @@
-function volume = bfOpen3DVolume(filename)
-% bfOpen3DVolume loads a stack of images using Bio-Formats and transforms them
-% into a 3D volume
+function [I,idx] = bfGetPlaneAtZCT( r, z, c, t, varargin )
+%bfGetPlaneAtCZT Obtains an image plane for the Z, C, T
 %
-% SYNPOSIS  bfOpen3DVolume
-%           V = bfOpen3DVolume(filename)
+%   I = bfGetPlaneAtZCT(r, z, c, t) returns a specified plane from the input
+%   format reader. The indices specifying the plane to retrieve should be
+%   contained between 1 and the number of planes for each dimesnion.
 %
-% Input
+%   I = bfGetPlaneAtZCT(r, z, c, t, ...) does as above but passes extra
+%   arguments to bfGetPlane for tiling, etc.
 %
-%   filename - Optional.  A path to the file to be opened.  If not specified,
-%   then a file chooser window will appear.
+% Examples
 %
-% Output
+%    r = bfGetReader('example.tif');
+%    I = bfGetPlaneAtZCT(r, 1, 1, 1) % First plane of the series
+%    I = bfGetPlaneAtZCT(r,r.getSizeZ(),r.getSizeC(),r.getSizeT()) % Last plane of the series
+%    I = bfGetPlaneAtZCT(r, 1, 1, 1, 1, 1, 1, 20, 20) % 20x20 tile originated at (0, 0)
 %
-%   volume - 3D array containing all images in the file.
+% See also: BFGETREADER, BFGETPLANE, loci.formats.IFormatReader.getIndex
 
 % OME Bio-Formats package for reading and converting biological file formats.
 %
@@ -43,20 +46,26 @@ function volume = bfOpen3DVolume(filename)
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 % POSSIBILITY OF SUCH DAMAGE.
 
-% load the Bio-Formats library into the MATLAB environment
-status = bfCheckJavaPath();
-assert(status, ['Missing Bio-Formats library. Either add bioformats_package.jar '...
-    'to the static Java path or add it to the Matlab path.']);
+% Input check
+ip = inputParser;
+isValidReader = @(x) isa(x, 'loci.formats.IFormatReader') && ...
+    ~isempty(x.getCurrentFile());
+ip.addRequired('r', isValidReader);
+ip.parse(r);
 
-% Prompt for a file if not input
-if nargin == 0 || exist(filename, 'file') == 0
-  [file, path] = uigetfile(bfGetFileExtensions, 'Choose a file to open');
-  filename = [path file];
-  if isequal(path, 0) || isequal(file, 0), return; end
-end
+ip = inputParser;
+% No validation because we already checked
+% Kept for positional errors
+ip.addRequired('r');
 
-volume = bfopen(filename);
-vaux{1} = cat(3, volume{1}{:, 1});
-vaux{2} = filename;
-volume{1} = vaux;
+% Check ZCT coordinates are within range
+ip.addOptional('z',1,@(x) bfTestInRange(x,'z',r.getSizeZ()));
+ip.addOptional('c',1,@(x) bfTestInRange(x,'c',r.getSizeC()));
+ip.addOptional('t',1,@(x) bfTestInRange(x,'t',r.getSizeT()));
+
+ip.parse(r, z, c, t);
+
+javaIndex = r.getIndex(z-1, c-1, t-1);
+I = bfGetPlane(r, javaIndex+1);
+
 end

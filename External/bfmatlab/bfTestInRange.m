@@ -1,18 +1,9 @@
-function volume = bfOpen3DVolume(filename)
-% bfOpen3DVolume loads a stack of images using Bio-Formats and transforms them
-% into a 3D volume
+function test = bfTestInRange(x,name,maxValue)
+%bfTestInRange A validation function that tests if the argument
+% is scalar integer between 1 and maxValue
 %
-% SYNPOSIS  bfOpen3DVolume
-%           V = bfOpen3DVolume(filename)
-%
-% Input
-%
-%   filename - Optional.  A path to the file to be opened.  If not specified,
-%   then a file chooser window will appear.
-%
-% Output
-%
-%   volume - 3D array containing all images in the file.
+% This should be faster than ismember(x, 1:maxValue) while also producing
+% more readable errors.
 
 % OME Bio-Formats package for reading and converting biological file formats.
 %
@@ -43,20 +34,25 @@ function volume = bfOpen3DVolume(filename)
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 % POSSIBILITY OF SUCH DAMAGE.
 
-% load the Bio-Formats library into the MATLAB environment
-status = bfCheckJavaPath();
-assert(status, ['Missing Bio-Formats library. Either add bioformats_package.jar '...
-    'to the static Java path or add it to the Matlab path.']);
+    % Check to see if x is a single value
+    test = isscalar(x);
+    if(~test)
+        error('bfTestInRange:notScalar', ...
+            [name ' value, [' num2str(x) '], is not scalar']);
+    end
 
-% Prompt for a file if not input
-if nargin == 0 || exist(filename, 'file') == 0
-  [file, path] = uigetfile(bfGetFileExtensions, 'Choose a file to open');
-  filename = [path file];
-  if isequal(path, 0) || isequal(file, 0), return; end
-end
+    % Check to see if x is a whole number
+    test = mod(x,1) == 0;
+    if(~test)
+        error('bfTestInRange:notAnInteger', ...
+            [name ' value, ' num2str(x) ', is not an integer']);
+    end
 
-volume = bfopen(filename);
-vaux{1} = cat(3, volume{1}{:, 1});
-vaux{2} = filename;
-volume{1} = vaux;
+    % Check to see if x is between 1 and maxValue
+    test = x >= 1 && x <= maxValue;
+    if(~test)
+        error('bfTestInRange:notInSequence', ...
+            [name ' value, ' num2str(x) ', is not between 1 and ', ...
+            num2str(maxValue)]);
+    end
 end
