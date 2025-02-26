@@ -9,9 +9,9 @@ forIlim = mat2gray(image1);
 
 t = 0.8*graythresh(forIlim)*maxI + minI;
 debris = image1 > 8*t; % super bright non-cell stuff
-debris = imdilate(debris, strel('disk', 15));
+debris = imdilate(debris, strel('disk', 20)); % original 15
 
-dapi2 = image1 > 0.5*t;
+dapi2 = image1 > 0.8*t; %original 0.5 First thing to twik
 dapi2 = dapi2&~debris;
 %figure; imshow(dapi2);
 

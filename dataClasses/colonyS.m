@@ -9,13 +9,13 @@ classdef colonyS
         fileFolder
         fileName
         radius % microns
-        %radialProfile
+        radialProfile
     end
     
-    properties(SetAccess = private)
-        radialProfile
-        % structure - Non-normalized, dapiNormalized (values(mean,std, stdError), pixels)
-    end
+%     properties(SetAccess = private)
+%         radialProfile
+%         % structure - Non-normalized, dapiNormalized (values(mean,std, stdError), pixels)
+%     end
     
     methods
         % contstructor function

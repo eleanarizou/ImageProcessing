@@ -1,7 +1,7 @@
 function img_bgsub = backGroundSubImOpen(img,BGradius)
 
 if ~exist('BGradius','var')
-    BGradius = 20;
+    BGradius = 15;
 end
 
 img_bgsub = zeros(size(img));
